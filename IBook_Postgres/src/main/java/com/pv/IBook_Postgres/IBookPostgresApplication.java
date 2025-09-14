@@ -45,7 +45,7 @@ public class IBookPostgresApplication implements CommandLineRunner{
 		
 		//addBook(bdto);
 		//getBookGreaterThanOrEqualPrice(100);
-		getBookByAuthorName("Ahata");
+		getBookByAuthorName("Arhata");
 //		deleteBook(1010);
 //		deleteBook(1009);
 //		deleteBook(1019);
