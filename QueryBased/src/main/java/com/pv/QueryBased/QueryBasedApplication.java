@@ -15,7 +15,7 @@ import com.pv.QueryBased.DTO.MovieDTO;
 import com.pv.QueryBased.Service.MovieService;
 
 @SpringBootApplication
-public class QueryBasedApplication implements CommandLineRunner{
+public class QueryBasedApplication {//implements CommandLineRunner{
 
 	
 	private static final Logger LOGGER = LogManager.getLogger(QueryBasedApplication.class);
@@ -25,26 +25,26 @@ public class QueryBasedApplication implements CommandLineRunner{
 		SpringApplication.run(QueryBasedApplication.class, args);
 	}
 
-	@Override
-	public void run(String... args) throws Exception {
-		// TODO Auto-generated method stub
-		//findAllwithDirectorName("Christopher Nolan");
-		findMovieNameDirectorName();
-		//averageRating(2000);
-	}
-	
-	public void findAllwithDirectorName(String name)
-	{
-		LOGGER.info(ser.findAllwithDirectorName(name));
-	}
-	public void findMovieNameDirectorName()
-	{
-		List<Object[]> lst = ser.findMovieNameDirectorName();
-		lst.forEach(obj ->{LOGGER.info(obj[0]+"\t\t"+obj[1]);});
-	}
-	public void averageRating(Integer year)
-	{
-		LOGGER.info(ser.averageRating(year));
-	}
+//	@Override
+//	public void run(String... args) throws Exception {
+//		// TODO Auto-generated method stub
+//		//findAllwithDirectorName("Christopher Nolan");
+//		findMovieNameDirectorName();
+//		//averageRating(2000);
+//	}
+//	
+//	public void findAllwithDirectorName(String name)
+//	{
+//		LOGGER.info(ser.findAllwithDirectorName(name));
+//	}
+//	public void findMovieNameDirectorName()
+//	{
+//		List<Object[]> lst = ser.findMovieNameDirectorName();
+//		lst.forEach(obj ->{LOGGER.info(obj[0]+"\t\t"+obj[1]);});
+//	}
+//	public void averageRating(Integer year)
+//	{
+//		LOGGER.info(ser.averageRating(year));
+//	}
 
 }
