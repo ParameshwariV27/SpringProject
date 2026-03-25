@@ -12,13 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.jaxb.SpringDataJaxb.OrderDto;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import pv.com.controller.CustomerController;
 import pv.com.dto.CustomerDTO;
-import pv.com.dto.OrdersDTO;
+import pv.com.dto.OrderDTO;
+import pv.com.dto.UpdateCustomerDTO;
+import pv.com.dto.UpdateOrderDTO;
 import pv.com.entity.Customer;
 import pv.com.entity.OrderStatus;
 import pv.com.entity.Orders;
@@ -33,13 +36,17 @@ import pv.com.repository.OrderRepository;
 public class CustomerServiceImpl implements CustomerService{
 	@Autowired
 	private CustomerRepository customerRepository;
+	
 	@Autowired
 	private OrderRepository orderRepository;
+	
 	@Autowired
 	ModelMapper modelMapper;
-	private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
+	
 	@Autowired
 	private Environment environment;
+	
+	private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 	
 	@Override
 	public String CreateCustomer(CustomerDTO customerDTO) throws CustomerOrderExceptions{
@@ -59,7 +66,7 @@ public class CustomerServiceImpl implements CustomerService{
 		return customerDTO;
 	}
 	@Override
-	public String createOrder(Long customerId, OrdersDTO orderDTO) throws CustomerOrderExceptions {
+	public String createOrder(Long customerId, OrderDTO orderDTO) throws CustomerOrderExceptions {
 
 	    Customer customer = customerRepository.findById(customerId)
 	                            .orElseThrow(() -> new CustomerOrderExceptions(environment.getProperty("Service.CUSTOMER_NOT_FOUND")));
@@ -70,34 +77,34 @@ public class CustomerServiceImpl implements CustomerService{
 	    if(orders.getTransactionId()!=null)
 	    	orders.setPaymentStatus(PaymentStatus.SUCESS);
 	    else
-	    	orders.setPaymentStatus(PaymentStatus.PENDING);
+    	orders.setPaymentStatus(PaymentStatus.PENDING);
+	    
 	    orders.setOrderDate(LocalDateTime.now());
-	    orders.setExpectedDelivery(LocalDateTime.now().plusDays(2).toLocalDate());
+	    
+	    orders.setExpectedDelivery(LocalDateTime.now().plusDays(2).toLocalDate());	    
 	    if(orders.getPaymentStatus().equals(PaymentStatus.PENDING))
 	    	orders.setPaymentMode(PaymentMode.CASH);
-	    BigDecimal quantity = BigDecimal.valueOf(orders.getQuantity());
-	    BigDecimal price = BigDecimal.valueOf(1200);
-	    BigDecimal amt = quantity.multiply(price);
+	    BigDecimal amt = calAmt(orders.getQuantity());
 	    orders.setTotalAmount(amt);
-	    //end---------
+//	    //end---------
 	    orders.setCustomer(customer);  
 	    customer.getOrders().add(orders);
 
 	    orderRepository.save(orders); 
 
-	    return "success";
+	    return "success "+orders.getOrderId();
 	}
 
 	@Override
-	public List<OrdersDTO> getOrders(Long customerId) throws CustomerOrderExceptions {
+	public List<OrderDTO> getOrders(Long customerId) throws CustomerOrderExceptions {
 		// TODO Auto-generated method stub
 		Optional<Customer> opt= customerRepository.findById(customerId);
 		Customer customer = opt.orElseThrow(()->new CustomerOrderExceptions(environment.getProperty("Service.CUSTOMER_NOT_FOUND")));
-		List<OrdersDTO> ordersDTOList = new ArrayList<>();
+		List<OrderDTO> ordersDTOList = new ArrayList<>();
 		for(Orders ol: customer.getOrders())
 		{
-			OrdersDTO dto = new OrdersDTO();
-			dto = modelMapper.map(ol,OrdersDTO.class);
+			OrderDTO dto = new OrderDTO();
+			dto = modelMapper.map(ol,OrderDTO.class);
 			ordersDTOList.add(dto);
 		}
 		return ordersDTOList;
@@ -126,38 +133,92 @@ public class CustomerServiceImpl implements CustomerService{
 		customerRepository.delete(customer);
 	}
 	@Override
-	public String updateCustomer(Long Id, CustomerDTO customerDTO) throws CustomerOrderExceptions {
+	public CustomerDTO updateCustomer(Long Id, UpdateCustomerDTO customerDTO) throws CustomerOrderExceptions {
 		// TODO Auto-generated method stub
 		Optional<Customer> opt= customerRepository.findById(Id);
 		Customer customer = opt.orElseThrow(()->new CustomerOrderExceptions(environment.getProperty("Service.CUSTOMER_NOT_FOUND")));
-		if(customerDTO.getFirstName()!="")
+		if(customerDTO.getFirstName()!=null)
 			customer.setFirstName(customerDTO.getFirstName());
 		
-		if(customerDTO.getLastName()!="")
+		if(customerDTO.getLastName()!=null)
 			customer.setLastName(customerDTO.getLastName());
 		
-		if(customerDTO.getEmail()!="")
+		if(customerDTO.getEmail()!=null)
 			customer.setEmail(customerDTO.getEmail());
 		
-		if(customerDTO.getAddressLine1()!="")
+		if(customerDTO.getAddressLine1()!=null)
 			customer.setAddressLine1(customerDTO.getAddressLine1());
 		
-		if(customerDTO.getAddressLine2()!="")
+		if(customerDTO.getAddressLine2()!=null)
 			customer.setAddressLine2(customerDTO.getAddressLine2());
 		
-		if(customerDTO.getCity()!="")
+		if(customerDTO.getCity()!=null)
 			customer.setCity(customerDTO.getCity());
 		
-		if(customerDTO.getState()!="")
+		if(customerDTO.getState()!=null)
 			customer.setState(customerDTO.getState());
 		
-		if(customerDTO.getCountry()!="")
+		if(customerDTO.getCountry()!=null)
 			customer.setCountry(customerDTO.getCountry());
 		
-		if(customerDTO.getPostalCode()!="")
+		if(customerDTO.getPostalCode()!=null)
 			customer.setPostalCode(customerDTO.getPostalCode());
 		
-		return "Updated";
+		customerRepository.save(customer);
+		
+		CustomerDTO cdto = modelMapper.map(customer, CustomerDTO.class);
+		
+		return cdto;
+	}
+	@Override
+	public List<CustomerDTO> getCustomers() throws CustomerOrderExceptions {
+		// TODO Auto-generated method stub
+		
+		List<Customer> list = customerRepository.findAll();
+		List<CustomerDTO> dtolist = new ArrayList<>();
+		for(Customer customer:list)
+		{
+			CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
+			dtolist.add(dto);
+		}
+		return dtolist;
+	}
+	@Override
+	public OrderDTO updateOrder(Long orderId, UpdateOrderDTO orderDTO) throws CustomerOrderExceptions {
+		// TODO Auto-generated method stub
+		Optional<Orders> opt = orderRepository.findById(orderId);
+		Orders order=opt.orElseThrow(()-> new CustomerOrderExceptions(environment.getProperty("Service.ORDER_NOT_FOUND")));
+		
+		if(orderDTO.getQuantity()!=null)
+			order.setQuantity(orderDTO.getQuantity());
+		if(orderDTO.getDeliveryAddress()!=null)
+			order.setDeliveryAddress(orderDTO.getDeliveryAddress());
+		if(orderDTO.getOrderDate()!=null)
+			order.setOrderDate(orderDTO.getOrderDate());
+		if(orderDTO.getOrderStatus()!=null)
+			order.setOrderStatus(orderDTO.getOrderStatus());
+		if(orderDTO.getPaymentMode()!=null)
+			order.setPaymentMode(orderDTO.getPaymentMode());
+		if(orderDTO.getTotalAmount()!=null)
+			order.setTotalAmount(orderDTO.getTotalAmount());
+		if(order.getTransactionId()==null && !order.getPaymentMode().equals(PaymentMode.CASH)) {
+		String timestamp = LocalDateTime.now().toString();
+		String tranId = timestamp.replaceAll("[^a-zA-Z0-9T]", "");
+		order.setTransactionId(tranId);
+		}
+		BigDecimal amt = calAmt(orderDTO.getQuantity());
+		order.setTotalAmount(amt);
+		order.setPaymentStatus(PaymentStatus.SUCESS);
+		orderRepository.save(order);
+		OrderDTO existingorderDTO = modelMapper.map(order, OrderDTO.class);
+		return existingorderDTO;
+	}
+	public BigDecimal calAmt(Integer quantity)
+	{
+		BigDecimal q = BigDecimal.valueOf(quantity);
+	    BigDecimal price = BigDecimal.valueOf(1200);
+	    BigDecimal amt = q.multiply(price);
+		return amt;
 	}
 
 }

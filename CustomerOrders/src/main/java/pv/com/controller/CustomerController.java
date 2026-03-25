@@ -1,6 +1,5 @@
 package pv.com.controller;
-
-
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +15,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import jakarta.validation.Valid;
 import pv.com.dto.CustomerDTO;
+import pv.com.dto.UpdateCustomerDTO;
 import pv.com.exceptions.CustomerOrderExceptions;
 import pv.com.service.CustomerService;
 
@@ -42,26 +41,34 @@ public class CustomerController {
 		
 	}
 	
-	@GetMapping("/get/{Id}")
-	public ResponseEntity<CustomerDTO> getCustomer(@PathVariable Long Id) throws CustomerOrderExceptions
+	@GetMapping("/get")
+	public ResponseEntity<List<CustomerDTO>> getCustomers() throws CustomerOrderExceptions
 	{
-		logger.info("Id in Controller: "+Id);
-		CustomerDTO customerDTO = customerService.findCustomer(Id);
+		List<CustomerDTO> dtolist = customerService.getCustomers();
+		return ResponseEntity.ok(dtolist);
+	}
+	
+	@GetMapping("/get/{customerId}")
+	public ResponseEntity<CustomerDTO> getCustomer(@PathVariable Long customerId) throws CustomerOrderExceptions
+	{
+		logger.info("Id in Controller: "+customerId);
+		CustomerDTO customerDTO = customerService.findCustomer(customerId);
 		logger.info("customerDTO in controller: "+customerDTO.toString());
 		return ResponseEntity.ok(customerDTO);
 		
 	}
 	
-	@DeleteMapping("/delete/{Id}")
-	public ResponseEntity<String> deleteCustomer(@PathVariable Long Id) throws CustomerOrderExceptions
+	@DeleteMapping("/delete/{CustomerId}")
+	public ResponseEntity<String> deleteCustomer(@PathVariable Long customerId) throws CustomerOrderExceptions
 	{
-		customerService.deleteCustomer(Id);
+		customerService.deleteCustomer(customerId);
 		return ResponseEntity.status(HttpStatus.OK.value()).body(environment.getProperty("API.DELETE_SUCESS"));
 	}
 	@PutMapping("update/{Id}")
-	public ResponseEntity<String> updateCustomer(@PathVariable Long Id, @RequestBody CustomerDTO customerDTO) throws CustomerOrderExceptions
+	public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long Id, @RequestBody @Valid UpdateCustomerDTO customerDTO) throws CustomerOrderExceptions
 	{
-		customerService.updateCustomer(Id, customerDTO);
-		return ResponseEntity.status(HttpStatus.OK.value()).body(environment.getProperty("API.UPDATE_SUCESS"));
+		logger.info("Update dto"+customerDTO);
+		CustomerDTO cDTO = customerService.updateCustomer(Id, customerDTO);
+		return ResponseEntity.ok(cDTO);
 	}
 }

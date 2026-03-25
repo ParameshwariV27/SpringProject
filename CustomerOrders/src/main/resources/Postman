@@ -1,0 +1,7 @@
+http://localhost:8080/CustomerOrder/order/{customerId}
+Create Order:
+PaymentMode is by default = CASH
+{
+    "quantity": 5,
+    "deliveryAddress": "SP Road, Bangalore" 
+}

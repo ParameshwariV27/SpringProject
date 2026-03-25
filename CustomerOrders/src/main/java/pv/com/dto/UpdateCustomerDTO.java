@@ -4,56 +4,51 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
-public class CustomerDTO {
-
-    private Long customerId;
-    @NotBlank(message = "Please enter customer first name")
+public class UpdateCustomerDTO {
+	private Long customerId;
+   
     @Pattern(regexp = "^[A-Za-z]+$",message = "Only alphabets are allowed")
     private String firstName;
     
     @Pattern(regexp = "^[A-Za-z]+$",message = "Only alphabets are allowed")
     private String lastName;
     
-    @NotBlank(message = "Please enter customer email ID")
-    @Email(message = "Please provide valid Email")
+   
+   // @Email(message = "Please provide valid Email")
     private String email;
     
-    @NotBlank(message = "Please enter address")
+    
     @Pattern(regexp="([A-Za-z0-9 ., #])+" , message = "Enter valid address1")
     private String addressLine1;
     
     @Pattern(regexp="([A-Za-z0-9 ., #])+" , message = "Enter valid address2")
     private String addressLine2;
     
-    @NotBlank(message = "Please enter city")
+  
     @Pattern(regexp = "([A-Za-z ])+", message = "Enter valid city")
     private String city;
     
-    @NotBlank(message = "Please enter state")
+  
     @Pattern(regexp = "([A-Za-z ])+", message = "Enter valid state")
     private String state;
     
-    @NotBlank(message = "Please enter country")
+   
     @Pattern(regexp = "([A-Za-z ])+", message = "Enter valid country")
     private String country;
     
-    @NotBlank(message = "Please enter postal code")
+  
     @Pattern(regexp = "([0-9])+", message = "Enter valid pin code")
     private String postalCode;
 
-    private List<OrderDTO> orders = new ArrayList<>();
+    public UpdateCustomerDTO() {}
 
-    public CustomerDTO() {}
-
-    public CustomerDTO(Long customerId, String firstName, String lastName, String email,
+    public UpdateCustomerDTO(Long customerId, String firstName, String lastName, String email,
                        String addressLine1, String addressLine2, String city, String state,
-                       String country, String postalCode, List<OrderDTO> orders) {
+                       String country, String postalCode) {
         this.customerId = customerId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -64,7 +59,7 @@ public class CustomerDTO {
         this.state = state;
         this.country = country;
         this.postalCode = postalCode;
-        this.orders = orders;
+     
     }
 
     // Getters and Setters
@@ -98,12 +93,11 @@ public class CustomerDTO {
     public String getPostalCode() { return postalCode; }
     public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
 
-    public List<OrderDTO> getOrders() { return orders; }
-    public void setOrders(List<OrderDTO> orders) { this.orders = orders; }
+   
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(addressLine1, addressLine2, city, country, customerId, email, firstName, lastName, orders,
+		return Objects.hash(addressLine1, addressLine2, city, country, customerId, email, firstName, lastName,
 				postalCode, state);
 	}
 
@@ -115,21 +109,21 @@ public class CustomerDTO {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		CustomerDTO other = (CustomerDTO) obj;
+		UpdateCustomerDTO other = (UpdateCustomerDTO) obj;
 		return Objects.equals(addressLine1, other.addressLine1) && Objects.equals(addressLine2, other.addressLine2)
 				&& Objects.equals(city, other.city) && Objects.equals(country, other.country)
 				&& Objects.equals(customerId, other.customerId) && Objects.equals(email, other.email)
 				&& Objects.equals(firstName, other.firstName) && Objects.equals(lastName, other.lastName)
-				&& Objects.equals(orders, other.orders) && Objects.equals(postalCode, other.postalCode)
+				 && Objects.equals(postalCode, other.postalCode)
 				&& Objects.equals(state, other.state);
 	}
 
 	@Override
 	public String toString() {
-		return "CustomerDTO [customerId=" + customerId + ", firstName=" + firstName + ", lastName=" + lastName
+		return "UpdateCustomerDTO [customerId=" + customerId + ", firstName=" + firstName + ", lastName=" + lastName
 				+ ", email=" + email + ", addressLine1=" + addressLine1 + ", addressLine2=" + addressLine2 + ", city="
 				+ city + ", state=" + state + ", country=" + country + ", postalCode=" + postalCode + ", orders="
-				+ orders + "]";
+				 + "]";
 	}
     
     

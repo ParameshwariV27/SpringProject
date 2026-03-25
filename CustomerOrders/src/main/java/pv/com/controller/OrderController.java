@@ -13,13 +13,15 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import pv.com.dto.OrdersDTO;
-
+import pv.com.dto.OrderDTO;
+import pv.com.dto.UpdateOrderDTO;
+import pv.com.exceptions.CustomerOrderExceptions;
 import pv.com.service.CustomerService;
 
 @RestController
@@ -33,20 +35,28 @@ public class OrderController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 	@Autowired
 	private Environment environment;
-	@PostMapping("/orders/{Id}")
-	public ResponseEntity<String> createOrders(@PathVariable("Id") Long customerId, @RequestBody @Valid OrdersDTO orderDTO) throws Exception
+	@PostMapping("/create/{customerId}")
+	public ResponseEntity<String> createOrders(@PathVariable("customerId") Long customerId, @RequestBody @Valid OrderDTO orderDTO) throws CustomerOrderExceptions
 	{
+		logger.info("within controller");
 		String str = customerService.createOrder(customerId, orderDTO);
 		logger.info("the dto class : "+orderDTO);
 		return ResponseEntity.status(HttpStatus.CREATED).body(environment.getProperty("API.ORDER_INSERT_SUCESS"));
 	}
 	
-	@GetMapping("/orders/{Id}")
-	public ResponseEntity<List<OrdersDTO>> getOrders(@PathVariable("Id") Long customerId) throws Exception
+	@GetMapping("/get/{Id}")
+	public ResponseEntity<List<OrderDTO>> getOrders(@PathVariable("Id") Long customerId) throws CustomerOrderExceptions
 	{
 		
-		List<OrdersDTO> ordersDTOList = customerService.getOrders(customerId);
+		List<OrderDTO> ordersDTOList = customerService.getOrders(customerId);
 		return ResponseEntity.status(HttpStatus.OK).body(ordersDTOList);
+	}
+	@PutMapping("update/{Id}")
+	public ResponseEntity<OrderDTO> UpdateOrder(@PathVariable("Id") Long OrderId, @RequestBody UpdateOrderDTO updateOrderDTO)throws CustomerOrderExceptions
+	{
+		logger.info("Inside Update Order Controller");
+		OrderDTO dto = customerService.updateOrder(OrderId, updateOrderDTO);
+		return ResponseEntity.ok(dto);
 	}
 
 }

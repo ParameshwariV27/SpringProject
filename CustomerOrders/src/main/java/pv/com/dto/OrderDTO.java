@@ -3,34 +3,42 @@ package pv.com.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import pv.com.entity.OrderStatus;
 import pv.com.entity.PaymentMode;
 import pv.com.entity.PaymentStatus;
 
-public class OrdersDTO {
+public class OrderDTO {
 
     private Long orderId;
     private LocalDateTime orderDate;
     private OrderStatus orderStatus;
-    @NotBlank(message = "Please provide quantity")
+    
+    @NotNull(message = "Please provide quantity")
     private Integer quantity;
+    
     private BigDecimal totalAmount;
+    
     @Pattern(regexp ="CARD|UPI|CASH", message = "Please provide valid value")
     private PaymentMode paymentMode;
+    
     private PaymentStatus paymentStatus;
+    
     @NotBlank(message = "Please provide Delivery Address")
     private String deliveryAddress;
+    
     private LocalDate expectedDelivery;
     private String transactionId;
     private Long customerId; // link to customer
 
-    public OrdersDTO() {}
+    public OrderDTO() {}
 
-    public OrdersDTO(Long orderId, LocalDateTime orderDate, OrderStatus orderStatus, BigDecimal totalAmount, Integer quantity,
-                     PaymentMode paymentMode, PaymentStatus paymentStatus, String deliveryAddress,
+    public OrderDTO(Long orderId, LocalDateTime orderDate, OrderStatus orderStatus, BigDecimal totalAmount, Integer quantity,
+    		PaymentMode paymentMode, PaymentStatus paymentStatus, String deliveryAddress,
                      LocalDate expectedDelivery,String transactionId, Long customerId) {
         this.orderId = orderId;
         this.orderDate = orderDate;
@@ -78,4 +86,37 @@ public class OrdersDTO {
     
     public Long getCustomerId() { return customerId; }
     public void setCustomerId(Long customerId) { this.customerId = customerId; }
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(customerId, deliveryAddress, expectedDelivery, orderDate, orderId, orderStatus, paymentMode,
+				paymentStatus, quantity, totalAmount, transactionId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		OrderDTO other = (OrderDTO) obj;
+		return Objects.equals(customerId, other.customerId) && Objects.equals(deliveryAddress, other.deliveryAddress)
+				&& Objects.equals(expectedDelivery, other.expectedDelivery)
+				&& Objects.equals(orderDate, other.orderDate) && Objects.equals(orderId, other.orderId)
+				&& orderStatus == other.orderStatus && paymentMode == other.paymentMode
+				&& paymentStatus == other.paymentStatus && Objects.equals(quantity, other.quantity)
+				&& Objects.equals(totalAmount, other.totalAmount) && Objects.equals(transactionId, other.transactionId);
+	}
+
+	@Override
+	public String toString() {
+		return "OrdersDTO [orderId=" + orderId + ", orderDate=" + orderDate + ", orderStatus=" + orderStatus
+				+ ", quantity=" + quantity + ", totalAmount=" + totalAmount + ", paymentMode=" + paymentMode
+				+ ", paymentStatus=" + paymentStatus + ", deliveryAddress=" + deliveryAddress + ", expectedDelivery="
+				+ expectedDelivery + ", transactionId=" + transactionId + ", customerId=" + customerId + "]";
+	}
+    
+    
 }
